@@ -5,10 +5,20 @@
   register: kubectl_version
   changed_when: false
 
+# Install git only in redhat
 - name: Install git
   ansible.builtin.package:
     name: git
     state: present
+  when: ansible_os_family == 'RedHat'
+
+# Install git with apt
+- name: Install git
+  ansible.builtin.apt:
+    name: git
+    state: present
+    update_cache: true
+  when: ansible_os_family == 'Debian'
 
 - name: Update PATH in /etc/profile
   ansible.builtin.lineinfile:
