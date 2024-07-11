@@ -1,0 +1,7 @@
+{
+  "recommandations": [
+      "task.vscode-task",
+      "mhutchie.git-graph",
+      "ms-vscode-remote.remote-ssh",
+  ],
+}
