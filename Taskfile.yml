@@ -1,0 +1,29 @@
+# https://taskfile.dev
+version: '3'
+
+tasks:
+  default:
+    desc: "List tasks"
+    cmds:
+      - task -a
+
+  prereq:
+    desc: "creates venv and install prerequisites"
+    preconditions:
+      - test ! -d venv
+    cmds:
+      - python3 -m venv venv
+      - source venv/bin/activate && pip install -r requirements.txt
+      - ansible-galaxy install -r requirements-roles.yml
+
+  linter:
+    desc: "execute linter"
+    cmds:
+      - source venv/bin/activate && ansible-lint .
+
+  test:
+    desc: "execute molecule tests"
+    cmds:
+      - rm -rf ~/.ansible/roles/sgaunet.krew
+      # - source venv/bin/activate && molecule destroy
+      - source venv/bin/activate && molecule test
