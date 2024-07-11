@@ -1,0 +1,6 @@
+---
+- name: Install krew
+  hosts: localhost
+  remote_user: root
+  roles:
+    - sgaunet.krew

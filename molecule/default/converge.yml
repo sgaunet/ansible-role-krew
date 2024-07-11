@@ -1,0 +1,11 @@
+---
+- name: Converge
+  hosts: all
+  become: true
+  tasks:
+    - name: "Include sgaunet.kubectl"
+      ansible.builtin.include_role:
+        name: "sgaunet.kubectl"
+    - name: "Include sgaunet.krew"
+      ansible.builtin.include_role:
+        name: "sgaunet.krew"

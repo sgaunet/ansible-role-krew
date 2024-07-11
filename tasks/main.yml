@@ -1,0 +1,65 @@
+---
+
+- name: Assert kubectl is setup by executing kubectl version --client
+  ansible.builtin.command: kubectl version --client
+  register: kubectl_version
+  changed_when: false
+
+- name: Install git
+  ansible.builtin.package:
+    name: git
+    state: present
+
+- name: Update PATH in /etc/profile
+  ansible.builtin.lineinfile:
+    path: /etc/profile
+    line: 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"'
+
+# in order to have the new PATH available in the current shell
+- name: Reset SSH connection
+  ansible.builtin.meta: reset_connection
+
+- name: Install krew
+  ansible.builtin.import_role:
+    name: sgaunet.gh_role_installer
+    defaults_from: "krew"
+
+# - name: debug
+#   ansible.builtin.debug:
+#     msg: "{{ item }}"
+#   with_items:
+#     - "{{ list_plugins }}"
+
+- name: "Check plugin {{ item }}"
+  become: false
+  environment:
+    PATH: "{{ ansible_env.PATH }}:{{ lookup('env', 'HOME') + '/.krew/bin/' }}"
+  ansible.builtin.shell: "set -o pipefail && /usr/local/bin/kubectl-krew list | grep -o {{ item }}"
+  args:
+    executable: /bin/bash
+  register: krew_plugins_list_plugin_installed
+  changed_when: false
+  failed_when: false
+  with_items:
+    - "{{ krew_plugins_list }}"
+  check_mode: false
+
+# - name: debug
+#   ansible.builtin.debug:
+#     msg: "{{ krew_plugins_list_plugin_installed }}"
+
+# - name: debug2
+#   ansible.builtin.debug:
+#     msg: "{{ item }}"
+#   with_items:
+#     - "{{ krew_plugins_list_plugin_installed.results }}"
+
+- name: Install plugin # noqa command-instead-of-shell
+  become: false
+  environment:
+    PATH: "{{ ansible_env.PATH }}:/usr/local/bin:{{ lookup('env', 'HOME') + '/.krew/bin/' }}"
+  ansible.builtin.shell: "/usr/local/bin/kubectl-krew install {{ item.item }}"
+  when: item.rc == 1
+  changed_when: item.rc == 1
+  with_items:
+    - "{{ krew_plugins_list_plugin_installed.results }}"

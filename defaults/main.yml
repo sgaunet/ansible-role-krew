@@ -1,0 +1,12 @@
+---
+
+krew_version: "latest"
+krew_bin_path: "/usr/local/bin"
+krew_tmp_directory: "{{ lookup('env', 'TMPDIR') | default('/tmp', true) }}"
+krew_os: "Linux"
+krew_arch: "x86_64"
+
+krew_plugins_list:
+  - access-matrix
+  - get-all
+  - tail
