@@ -1,0 +1,72 @@
+---
+name: CI
+'on':
+  pull_request:
+  push:
+    branches:
+      - '*'
+  schedule:
+    - cron: "30 6 * * 5"
+
+defaults:
+  run:
+    working-directory: 'sgaunet.krew'
+
+jobs:
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v4
+        with:
+          path: 'sgaunet.krew'
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install test dependencies.
+        run: |
+          pip3 install -r requirements.txt
+
+      - name: Lint code.
+        run: |
+          ansible-lint
+
+  molecule:
+    name: Molecule
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        distro:
+          - rockylinux9
+          - ubuntu2204
+          - debian12
+          - fedora39
+
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v4
+        with:
+          path: 'sgaunet.krew'
+
+      - name: Set up Python 3.
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install test dependencies.
+        run: |
+          pip3 install -r requirements.txt
+
+      - name: Run Molecule tests.
+        run: |
+          # molecule destroy
+          molecule test
+        env:
+          PY_COLORS: '1'
+          ANSIBLE_FORCE_COLOR: '1'
+          MOLECULE_DISTRO: ${{ matrix.distro }}
