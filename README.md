@@ -16,7 +16,7 @@ Example:
 - name: Install kubectl
   ansible.builtin.import_role:
     name: sgaunet.gh_role_installer
-    defaults_from: "kubectl"
+    vars_from: "kubectl"
   # override the following vars if needed:
   # vars:
   #   gh_role_installer_version: "{{ kubectl_version }}"

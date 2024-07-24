@@ -32,7 +32,7 @@
 - name: Install krew
   ansible.builtin.import_role:
     name: sgaunet.gh_role_installer
-    defaults_from: "krew"
+    vars_from: "krew"
 
 # - name: debug
 #   ansible.builtin.debug:
